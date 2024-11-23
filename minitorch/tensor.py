@@ -31,6 +31,10 @@ from .tensor_functions import (
     Sum,
     View,
     tensor,
+    tensor_from_numpy,
+    zeros_tensor_from_numpy,
+    PowerScalar,
+    Tanh
 )
 
 if TYPE_CHECKING:
@@ -44,6 +48,8 @@ if TYPE_CHECKING:
 
     TensorLike = Union[float, int, "Tensor"]
 
+
+datatype = np.float32
 
 @dataclass
 class History:
@@ -105,7 +111,7 @@ class Tensor:
     def requires_grad(self) -> bool:
         return self.history is not None
 
-    def to_numpy(self) -> npt.NDArray[np.float64]:
+    def to_numpy(self) -> npt.NDArray[datatype]:
         """
         Returns:
              Converted to numpy array
@@ -183,6 +189,14 @@ class Tensor:
 
     def __rmul__(self, b: TensorLike) -> Tensor:
         return self * b
+    
+    def __pow__(self, b: TensorLike) -> Tensor: 
+        if isinstance(b, (int, float)):
+            return PowerScalar.apply(self, self._ensure_tensor(b))
+        elif len(b.shape) == 1:
+            return PowerScalar.apply(self, self._ensure_tensor(b))
+        else:
+            raise NotImplementedError
 
     def all(self, dim: Optional[int] = None) -> Tensor:
         if dim is None:
@@ -204,6 +218,9 @@ class Tensor:
 
     def exp(self) -> Tensor:
         return Exp.apply(self)
+    
+    def tanh(self) -> Tensor:
+        return Tanh.apply(self)
 
     def item(self) -> float:
         assert self.size == 1
@@ -230,7 +247,8 @@ class Tensor:
             shape = self.shape
             
             mean = self.sum(dim) / self.shape[dim]
-            mean = mean.contiguous().view(shape)
+            # You don't need to view again because it'll be the correct shape for broadcasting
+            mean = mean.contiguous()
             
             diff = self.__sub__(mean) ** 2
             diff = diff.sum(dim) / self.shape[dim]
@@ -327,9 +345,10 @@ class Tensor:
 
     def zeros(self, shape: Optional[UserShape] = None) -> Tensor:
         def zero(shape: UserShape) -> Tensor:
-            return Tensor.make(
-                [0.0] * int(operators.prod(shape)), shape, backend=self.backend
-            )
+            # return Tensor.make(
+            #     [0.0] * int(operators.prod(shape)), shape, backend=self.backend
+            # )
+            return zeros_tensor_from_numpy(shape, self.backend)
 
         if shape is None:
             out = zero(self.shape)

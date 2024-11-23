@@ -128,7 +128,7 @@ __device__ int index_to_position(const int* index, const int* strides, int num_d
    *    index: index tuple of ints
    *    strides: tensor strides
    *    num_dims: number of dimensions in the tensor, e.g. shape/strides of [2, 3, 4] has 3 dimensions
-   * 
+   *
    * Returns:
    *    int - position in storage
   */
@@ -141,16 +141,16 @@ __device__ int index_to_position(const int* index, const int* strides, int num_d
 
 __device__ void to_index(int ordinal, const int* shape, int* out_index, int num_dims) {
   /**
-   * Convert an ordinal to an index in the shape. Should ensure that enumerating position 0 ... size of 
+   * Convert an ordinal to an index in the shape. Should ensure that enumerating position 0 ... size of
    * a tensor produces every index exactly once. It may not be the inverse of index_to_position.
    * Args:
    *    ordinal: ordinal position to convert
    *    shape: tensor shape
    *    out_index: return index corresponding to position
    *    num_dims: number of dimensions in the tensor
-   * 
+   *
    * Returns:
-   *    None (Fills in out_index) 
+   *    None (Fills in out_index)
   */
     int cur_ord = ordinal;
     for (int i = num_dims - 1; i >= 0; --i) {
@@ -162,20 +162,21 @@ __device__ void to_index(int ordinal, const int* shape, int* out_index, int num_
 
 __device__ void broadcast_index(const int* big_index, const int* big_shape, const int* shape, int* out_index, int num_dims_big, int num_dims) {
   /**
-   * Convert a big_index into big_shape to a smaller out_index into shape following broadcasting rules. 
-   * In this case it may be larger or with more dimensions than the shape given. 
+   * Convert a big_index into big_shape to a smaller out_index into shape following broadcasting rules.
+   * In this case it may be larger or with more dimensions than the shape given.
    * Additional dimensions may need to be mapped to 0 or removed.
-   * 
+   *
    * Args:
    *    big_index: multidimensional index of bigger tensor
    *    big_shape: tensor shape of bigger tensor
+   *    shape: tensor shape of smaller tensor
    *    nums_big_dims: number of dimensions in bigger tensor
    *    out_index: multidimensional index of smaller tensor
-   *    shape: tensor shape of smaller tensor  
+   *    nums_big_dims: number of dimensions in bigger tensor
    *    num_dims: number of dimensions in smaller tensor
-   * 
+   *
    * Returns:
-   *    None (Fills in out_index) 
+   *    None (Fills in out_index)
   */
     for (int i = 0; i < num_dims; ++i) {
         if (shape[i] > 1) {
@@ -199,15 +200,15 @@ __global__ void MatrixMultiplyKernel(
     const int* b_strides
 ) {
   /**
-   * Multiply two (compact) matrices into an output (also comapct) matrix. Matrix a and b are both in a batch 
+   * Multiply two (compact) matrices into an output (also comapct) matrix. Matrix a and b are both in a batch
    * format, with shape [batch_size, m, n], [batch_size, n, p].
    * Requirements:
    * - All data must be first moved to shared memory.
    * - Only read each cell in a and b once.
    * - Only write to global memory once per kernel.
-   * There is guarantee that a_shape[0] == b_shape[0], a_shape[2] == b_shape[1], 
+   * There is guarantee that a_shape[0] == b_shape[0], a_shape[2] == b_shape[1],
    * and out_shape[0] == a_shape[0], out_shape[1] == b_shape[1]
-   * 
+   *
    * Args:
    *   out: compact 1D array of size batch_size x m x p to write the output to
    *   out_shape: shape of the output array
@@ -218,7 +219,7 @@ __global__ void MatrixMultiplyKernel(
    *   b_storage: comapct 2D array of size batch_size x n x p
    *   b_shape: shape of the b array
    *   b_strides: strides of the b array
-   * 
+   *
    * Returns:
    *   None (Fills in out array)
    */
@@ -263,12 +264,12 @@ __global__ void mapKernel(
   /**
    * Map function. Apply a unary function to each element of the input array and store the result in the output array.
    * Optimization: Parallelize over the elements of the output array.
-   * 
+   *
    * You may find the following functions useful:
    * - index_to_position: converts an index to a position in a compact array
    * - to_index: converts a position to an index in a multidimensional array
    * - broadcast_index: converts an index in a smaller array to an index in a larger array
-   * 
+   *
    * Args:
    *  out: compact 1D array of size out_size to write the output to
    *  out_shape: shape of the output array
@@ -279,7 +280,7 @@ __global__ void mapKernel(
    *  in_strides: strides of the input array
    *  shape_size: number of dimensions in the input and output arrays, assume dimensions are the same
    *  fn_id: id of the function to apply to each element of the input array
-   * 
+   *
    * Returns:
    *  None (Fills in out array)
    */
@@ -303,13 +304,13 @@ __global__ void mapKernel(
 
 
 __global__ void reduceKernel(
-    float* out, 
-    int* out_shape, 
-    int* out_strides, 
-    int out_size, 
-    float* a_storage, 
-    int* a_shape, 
-    int* a_strides, 
+    float* out,
+    int* out_shape,
+    int* out_strides,
+    int out_size,
+    float* a_storage,
+    int* a_shape,
+    int* a_strides,
     int reduce_dim,
     float reduce_value,
     int shape_size,
@@ -317,14 +318,14 @@ __global__ void reduceKernel(
 ) {
   /**
    * Reduce function. Apply a reduce function to elements of the input array a and store the result in the output array.
-   * Optimization: 
+   * Optimization:
    * Parallelize over the reduction operation. Each kernel performs one reduction.
    * e.g. a = [[1, 2, 3], [4, 5, 6]], kernel0 computes reduce([1, 2, 3]), kernel1 computes reduce([4, 5, 6]).
-   * 
+   *
    * You may find the following functions useful:
    * - index_to_position: converts an index to a position in a compact array
    * - to_index: converts a position to an index in a multidimensional array
-   * 
+   *
    * Args:
    *  out: compact 1D array of size out_size to write the output to
    *  out_shape: shape of the output array
@@ -337,8 +338,8 @@ __global__ void reduceKernel(
    *  reduce_value: initial value for the reduction
    *  shape_size: number of dimensions in the input & output array, assert dimensions are the same
    *  fn_id: id of the reduce function, currently only support add, multiply, and max
-   *  
-   * 
+   *
+   *
    * Returns:
    *  None (Fills in out array)
    */
@@ -359,13 +360,13 @@ __global__ void reduceKernel(
 }
 
 __global__ void zipKernel(
-    float* out, 
-    int* out_shape, 
-    int* out_strides, 
+    float* out,
+    int* out_shape,
+    int* out_strides,
     int out_size,
     int out_shape_size,
-    float* a_storage, 
-    int* a_shape, 
+    float* a_storage,
+    int* a_shape,
     int* a_strides,
     int a_shape_size,
     float* b_storage, 
@@ -377,12 +378,12 @@ __global__ void zipKernel(
   /**
    * Zip function. Apply a binary function to elements of the input array a & b and store the result in the output array.
    * Optimization: Parallelize over the elements of the output array.
-   * 
+   *
    * You may find the following functions useful:
    * - index_to_position: converts an index to a position in a compact array
    * - to_index: converts a position to an index in a multidimensional array
    * - broadcast_index: converts an index in a smaller array to an index in a larger array
-   * 
+   *
    * Args:
    *  out: compact 1D array of size out_size to write the output to
    *  out_shape: shape of the output array
@@ -398,8 +399,8 @@ __global__ void zipKernel(
    *  b_strides: strides of the input array
    *  b_shape_size: number of dimensions in the input array
    *  fn_id: id of the function to apply to each element of the a & b array
-   *  
-   * 
+   *
+   *
    * Returns:
    *  None (Fills in out array)
    */
