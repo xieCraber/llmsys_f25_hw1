@@ -103,14 +103,10 @@ __device__ float fn(int fn_id, float x, float y=0) {
         }
       }
       case POW: {
-        // BEGIN ASSIGN1_0
-        return x;
-        // END ASSIGN1_0
+        return pow(x, y);
       }
       case TANH: {
-        // BEGIN ASSIGN1_0
-        return x;
-        // END ASSIGN1_0
+        return tanh(x);
       }
       default: {
         return x + y;

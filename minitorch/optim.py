@@ -57,6 +57,18 @@ class Adam(Optimizer):
         for p in parameters:
             self._states[id(p)] = {}
 
+    def zero_grad(self) -> None:
+        for p in self.parameters:
+            if p.value is None:
+                continue
+            if hasattr(p.value, "derivative"):
+                if p.value.derivative is not None:
+                    p.value.derivative = None
+            if hasattr(p.value, "grad"):
+                if p.value.grad is not None:
+                    p.value.grad = None
+
+
     def step(self):
         for p in self.parameters:
             if p.value is None:
