@@ -4,8 +4,6 @@ The goal of this assignment is to implement a basic deep learning framework, min
 
 ## Environment Setup
 
-The starting code base is provided in [llmsys_s26_hw1](https://github.com/llmsystem/llmsys_s26_hw1).
-
 Please check your version of Python (Python 3.8+), run either:
 
 ```bash
@@ -32,7 +30,7 @@ conda activate minitorch
 Then clone the starter codes from the git repo and install packages.
 
 ```bash
-git clone https://github.com/llmsystem/llmsys_s26_hw1.git
+git clone https://github.com/llmsystem/llmsys_f25_hw1.git
 cd llmsys_s26_hw1
 python -m pip install -r requirements.txt
 python -m pip install -r requirements.extra.txt
