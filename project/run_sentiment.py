@@ -27,7 +27,7 @@ class Linear(minitorch.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
         
-        # BEGIN ASSIGN1_3
+        # BEGIN ASSIGN1_2
         # TODO
         # 1. Initialize self.weights to be a random parameter of (in_size, out_size).
         # 2. Initialize self.bias to be a random parameter of (out_size)
@@ -36,13 +36,13 @@ class Linear(minitorch.Module):
     
         raise NotImplementedError
     
-        # END ASSIGN1_3
+        # END ASSIGN1_2
 
     def forward(self, x):
         
         batch, in_size = x.shape
         
-        # BEGIN ASSIGN1_3
+        # BEGIN ASSIGN1_2
         # TODO
         # 1. Reshape the input x to be of size (batch, in_size)
         # 2. Reshape self.weights to be of size (in_size, self.out_size)
@@ -52,7 +52,7 @@ class Linear(minitorch.Module):
 
         raise NotImplementedError
     
-        # END ASSIGN1_3
+        # END ASSIGN1_2
         
         
 
@@ -79,12 +79,12 @@ class Network(minitorch.Module):
         self.embedding_dim = embedding_dim
         self.dropout_prob = dropout_prob
                 
-        # BEGIN ASSIGN1_3
+        # BEGIN ASSIGN1_2
         # TODO
         # 1. Construct two linear layers: the first one is embedding_dim * hidden_dim, the second one is hidden_dim * 1
 
         raise NotImplementedError
-        # END ASSIGN1_3
+        # END ASSIGN1_2
         
         
 
@@ -93,7 +93,7 @@ class Network(minitorch.Module):
         embeddings tensor: [batch x sentence length x embedding dim]
         """
     
-        # BEGIN ASSIGN1_3
+        # BEGIN ASSIGN1_2
         # TODO
         # 1. Average the embeddings on the sentence length dimension to obtain a tensor of (batch, embedding_dim)
         # 2. Apply the first linear layer
@@ -104,7 +104,7 @@ class Network(minitorch.Module):
         
         raise NotImplementedError
     
-        # END ASSIGN1_3
+        # END ASSIGN1_2
 
 
 # Evaluation helper methods
@@ -187,7 +187,7 @@ class SentenceSentimentTrain:
             ):
                 out=None
                 
-                # BEGIN ASSIGN1_4
+                # BEGIN ASSIGN1_3
                 # TODO
                 # 1. Create x and y using minitorch.tensor function through our CudaKernelOps backend
                 # 2. Set requires_grad=True for x and y
@@ -197,7 +197,7 @@ class SentenceSentimentTrain:
                 # 6. Use Optimizer to take a gradient step
                 
                 raise NotImplementedError
-                # END ASSIGN1_4
+                # END ASSIGN1_3
                 
                 
                 # Save training results
@@ -211,7 +211,7 @@ class SentenceSentimentTrain:
                 (X_val, y_val) = data_val
                 model.eval()
                 
-                # BEGIN ASSIGN1_4
+                # BEGIN ASSIGN1_3
                 # TODO
                 # 1. Create x and y using minitorch.tensor function through our CudaKernelOps backend
                 # 2. Get the output of the model
@@ -220,7 +220,7 @@ class SentenceSentimentTrain:
                 
                 raise NotImplementedError
                 
-                # END ASSIGN1_4
+                # END ASSIGN1_3
                 
                 model.train()
 
