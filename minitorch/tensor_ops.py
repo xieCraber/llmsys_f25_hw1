@@ -12,6 +12,7 @@ from .tensor_data import (
     index_to_position,
     shape_broadcast,
     to_index,
+    IndexingError,
 )
 
 if TYPE_CHECKING:
@@ -224,7 +225,84 @@ class SimpleOps(TensorOps):
 
     @staticmethod
     def matrix_multiply(a: "Tensor", b: "Tensor") -> "Tensor":
-        raise NotImplementedError("Not implemented in this assignment")
+        """
+        Matrix multiplication of two tensors.
+        
+        Args:
+            a: First tensor with shape (..., m, n)
+            b: Second tensor with shape (..., n, p)
+            
+        Returns:
+            Tensor with shape (..., m, p)
+        """
+        # Get the shapes
+        a_shape = a.shape
+        b_shape = b.shape
+        
+        # Check if we can perform matrix multiplication
+        if len(a_shape) < 2 or len(b_shape) < 2:
+            raise ValueError("Both tensors must be at least 2D for matrix multiplication")
+        
+        # For matrix multiplication, the last two dimensions must be compatible
+        # a: (..., m, n), b: (..., n, p) -> result: (..., m, p)
+        m, n = a_shape[-2], a_shape[-1]
+        n2, p = b_shape[-2], b_shape[-1]
+        
+        if n != n2:
+            raise ValueError(f"Matrix multiplication requires compatible dimensions: {a_shape} and {b_shape}")
+        
+        # Handle broadcasting for higher dimensions
+        # Broadcast the leading dimensions
+        if len(a_shape) > 2 or len(b_shape) > 2:
+            # Get the leading dimensions (excluding the last 2)
+            a_leading = a_shape[:-2]
+            b_leading = b_shape[:-2]
+            
+            # Broadcast the leading dimensions
+            try:
+                leading_shape = shape_broadcast(a_leading, b_leading)
+            except IndexingError:
+                raise ValueError(f"Cannot broadcast leading dimensions: {a_leading} and {b_leading}")
+            
+            # Create output shape
+            out_shape = leading_shape + (m, p)
+        else:
+            out_shape = (m, p)
+        
+        # Create output tensor
+        out = a.zeros(out_shape)
+        
+        # Get the tensor data
+        a_storage, a_shape_array, a_strides = a.tuple()
+        b_storage, b_shape_array, b_strides = b.tuple()
+        out_storage, out_shape_array, out_strides = out.tuple()
+        
+        # Perform matrix multiplication
+        # For each output position (i, j), compute sum over k
+        for i in range(m):
+            for j in range(p):
+                # Compute C[i,j] = sum(A[i,k] * B[k,j] for k in range(n))
+                sum_val = 0.0
+                for k in range(n):
+                    # Get A[i,k]
+                    a_index = np.array([i, k])
+                    a_pos = index_to_position(a_index, a_strides)
+                    a_val = a_storage[a_pos]
+                    
+                    # Get B[k,j]
+                    b_index = np.array([k, j])
+                    b_pos = index_to_position(b_index, b_strides)
+                    b_val = b_storage[b_pos]
+                    
+                    # Accumulate the product
+                    sum_val += a_val * b_val
+                
+                # Set the result
+                out_index = np.array([i, j])
+                out_pos = index_to_position(out_index, out_strides)
+                out_storage[out_pos] = sum_val
+        
+        return out
 
     is_cuda = False
 
