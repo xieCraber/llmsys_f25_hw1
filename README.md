@@ -1,4 +1,4 @@
-# Assignment1: Minitorch Framework
+# Assignment 1: Minitorch Framework
 
 The goal of this assignment is to implement a basic deep learning framework, miniTorch, which is capable of performing operations on tensors with automatic differentiation and necessary operators. In this assignment, we will construct a simple feedforward neural network for a sentiment classification task. We will implement the automatic differentiation framework, simple neural network architecture, and training and evaluation algorithms in Python.
 
@@ -31,7 +31,7 @@ Then clone the starter codes from the git repo and install packages.
 
 ```bash
 git clone https://github.com/llmsystem/llmsys_f25_hw1.git
-cd llmsys_s26_hw1
+cd llmsys_f25_hw1
 python -m pip install -r requirements.txt
 python -m pip install -r requirements.extra.txt
 python -m pip install -Ue .
