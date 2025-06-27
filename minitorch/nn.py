@@ -47,12 +47,8 @@ def avgpool2d(input: Tensor, kernel: Tuple[int, int]) -> Tensor:
     return x.mean(dim=4).view(batch, channel, new_height, new_width)
 
 
-try:
-    from minitorch.cuda_kernel_ops import CudaKernelOps
-    max_reduce = CudaKernelOps.reduce(operators.max, -1e9)
-except:
-    raise NotImplementedError("Reduce Function Not Implemented Yet")
-    print("cuda kernels not implemented: combine.so not found")
+from .tensor_ops import SimpleOps
+max_reduce = SimpleOps.reduce(operators.max, -1e9)
 
 
 

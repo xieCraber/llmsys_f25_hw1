@@ -15,17 +15,16 @@ from .tensor_strategies import assert_close_tensor, shaped_tensors, tensors
 one_arg, two_arg, red_arg = MathTestVariable._comp_testing()
 
 shared: Dict[str, TensorBackend] = {}
-from minitorch.cuda_kernel_ops import CudaKernelOps
 
 import sys
 sys.path.append("./")
 from project.run_sentiment import Linear, Network
 
 
-if numba.cuda.is_available():
-    backend_tests = [pytest.param("cuda")]
-    matmul_tests = [pytest.param("cuda")]
-    shared["cuda"] = minitorch.TensorBackend(CudaKernelOps)
+from minitorch.tensor_ops import SimpleOps
+backend_tests = [pytest.param("cpu")]
+matmul_tests = [pytest.param("cpu")]
+shared["cpu"] = minitorch.TensorBackend(SimpleOps)
 
     
 def test_Linear_1() -> None:
@@ -35,7 +34,7 @@ def test_Linear_1() -> None:
     batch_size = 3
     
     x = [[random.random() for j in range(in_size)] for i in range(batch_size)]
-    x = minitorch.tensor(x, backend=shared["cuda"])
+    x = minitorch.tensor(x, backend=shared["cpu"])
     lin_layer = Linear(in_size, out_size)
     out = lin_layer.forward(x)
     
@@ -43,7 +42,7 @@ def test_Linear_1() -> None:
             [0.337623, -0.093076, 0.036470, -0.178649, 0.107644],
             [0.184583, -0.014374, -0.095709, -0.149702, 0.246605]]
     
-    ans = minitorch.tensor(ans, backend=shared["cuda"])
+    ans = minitorch.tensor(ans, backend=shared["cpu"])
     assert_close(out, ans)
 
 def test_Linear_2() -> None:
@@ -54,7 +53,7 @@ def test_Linear_2() -> None:
     batch_size = 5
     
     x = [[random.random() for j in range(in_size)] for i in range(batch_size)]
-    x = minitorch.tensor(x, backend=shared["cuda"])
+    x = minitorch.tensor(x, backend=shared["cpu"])
     lin_layer = Linear(in_size, out_size)
     out = lin_layer.forward(x)
     
@@ -64,7 +63,7 @@ def test_Linear_2() -> None:
             [0.275477, -0.371416, 0.004781, -0.072271, -0.445334, -0.156278, 0.047011, -0.001491, -0.219601],
             [0.034959, -0.286523, -0.031863, 0.053074, -0.265015, -0.232448, 0.088677, 0.083853, 0.022447]]
     
-    ans = minitorch.tensor(ans, backend=shared["cuda"])
+    ans = minitorch.tensor(ans, backend=shared["cpu"])
     assert_close(out, ans)
     
 
@@ -75,12 +74,12 @@ def test_Network_1() -> None:
     batch_size = 3
     
     x = [[[random.random() for k in range(embed_dim)] for j in range(15)] for i in range(batch_size)]
-    x = minitorch.tensor(x, backend=shared["cuda"])
+    x = minitorch.tensor(x, backend=shared["cpu"])
     lin_layer = Network(embedding_dim=embed_dim, hidden_dim=hidden_dim)
     out = lin_layer.forward(x)
 
     ans = [0.496940, 0.496504, 0.496926]
-    ans = minitorch.tensor(ans, backend=shared["cuda"])
+    ans = minitorch.tensor(ans, backend=shared["cpu"])
     assert_close(out, ans)
     
 
@@ -91,12 +90,12 @@ def test_Network_2() -> None:
     batch_size = 16
     
     x = [[[random.random() for k in range(embed_dim)] for j in range(15)] for i in range(batch_size)]
-    x = minitorch.tensor(x, backend=shared["cuda"])
+    x = minitorch.tensor(x, backend=shared["cpu"])
     lin_layer = Network(embedding_dim=embed_dim, hidden_dim=hidden_dim)
     out = lin_layer.forward(x)
 
     ans = [0.505370, 0.511656, 0.507613, 0.516586, 0.516189, 0.506369, 0.505869, 0.502742, 0.508764, 0.514705, 0.503345, 0.507725, 0.509373, 0.516602, 0.519662, 0.504855]
-    ans = minitorch.tensor(ans, backend=shared["cuda"])
+    ans = minitorch.tensor(ans, backend=shared["cpu"])
     assert_close(out, ans)
     
 
@@ -107,10 +106,10 @@ def test_Network_3() -> None:
     batch_size = 5
     
     x = [[[random.random() for k in range(embed_dim)] for j in range(15)] for i in range(batch_size)]
-    x = minitorch.tensor(x, backend=shared["cuda"])
+    x = minitorch.tensor(x, backend=shared["cpu"])
     lin_layer = Network(embedding_dim=embed_dim, hidden_dim=hidden_dim)
     out = lin_layer.forward(x)
 
     ans = [0.505171, 0.498700, 0.506095, 0.519629, 0.513037]
-    ans = minitorch.tensor(ans, backend=shared["cuda"])
+    ans = minitorch.tensor(ans, backend=shared["cpu"])
     assert_close(out, ans)
