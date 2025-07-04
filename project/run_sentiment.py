@@ -28,6 +28,7 @@ def cross_entropy_loss(out, y):
     # HINT: Use minitorch.tensor_functions.ones, minitorch.nn.logsoftmax
     
     raise NotImplementedError("cross_entropy_loss not implemented")
+    
     # END ASSIGN1_3
 
 class Linear(minitorch.Module):
