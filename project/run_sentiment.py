@@ -19,6 +19,16 @@ def RParam(*shape):
     r = 0.1 * (minitorch.rand(shape, backend=BACKEND) - 0.5)
     return minitorch.Parameter(r)
 
+def cross_entropy_loss(out, y):
+    # BEGIN ASSIGN1_3
+    # TODO
+    # 1. Create ones tensor with same shape as y
+    # 2. Compute log softmax of out and (ones - out)
+    # 3. Calculate binary cross entropy and take mean
+    # HINT: Use minitorch.tensor_functions.ones, minitorch.nn.logsoftmax
+    
+    raise NotImplementedError("cross_entropy_loss not implemented")
+    # END ASSIGN1_3
 
 class Linear(minitorch.Module):
     def __init__(self, in_size, out_size):
@@ -31,7 +41,7 @@ class Linear(minitorch.Module):
         # 3. Set self.out_size to be out_size
         # HINT: make sure to use the RParam function
     
-        raise NotImplementedError
+        raise NotImplementedError("Linear not implemented")
     
         # END ASSIGN1_2
 
@@ -47,7 +57,7 @@ class Linear(minitorch.Module):
         # 4. Add self.bias
         # HINT: You can use the view function of minitorch.tensor for reshape
 
-        raise NotImplementedError
+        raise NotImplementedError("Linear forward not implemented")
     
         # END ASSIGN1_2
         
@@ -80,7 +90,8 @@ class Network(minitorch.Module):
         # TODO
         # 1. Construct two linear layers: the first one is embedding_dim * hidden_dim, the second one is hidden_dim * 1
 
-        raise NotImplementedError
+        raise NotImplementedError("Network not implemented")
+        
         # END ASSIGN1_2
         
         
@@ -99,7 +110,7 @@ class Network(minitorch.Module):
         # 5. Apply sigmoid and reshape to (batch)
         # HINT: You can use minitorch.dropout for dropout, and minitorch.tensor.relu for ReLU
         
-        raise NotImplementedError
+        raise NotImplementedError("Network forward not implemented")
     
         # END ASSIGN1_2
 
@@ -186,14 +197,15 @@ class SentenceSentimentTrain:
                 
                 # BEGIN ASSIGN1_3
                 # TODO
-                # 1. Create x and y using minitorch.tensor function through our CudaKernelOps backend
+                # 1. Create x and y using minitorch.tensor function through the SimpleOps backend (cpu backend)
                 # 2. Set requires_grad=True for x and y
                 # 3. Get the model output (as out)
                 # 4. Calculate the loss using Binary Crossentropy Loss
                 # 5. Call backward function of the loss
                 # 6. Use Optimizer to take a gradient step
                 
-                raise NotImplementedError
+                raise NotImplementedError("SentenceSentimentTrain train not implemented")
+
                 # END ASSIGN1_3
                 
                 
@@ -215,7 +227,7 @@ class SentenceSentimentTrain:
                 # 3. Obtain validation predictions using the get_predictions_array function, and add to the validation_predictions list
                 # 4. Obtain the validation accuracy using the get_accuracy function, and add to the validation_accuracy list
                 
-                raise NotImplementedError
+                raise NotImplementedError("SentenceSentimentTrain train not implemented")
                 
                 # END ASSIGN1_3
                 
