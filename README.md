@@ -4,6 +4,8 @@ The goal of this assignment is to implement a basic deep learning framework, min
 
 ## Environment Setup
 
+The starting code base is provided in [llmsys_f25_hw1](https://github.com/llmsystem/llmsys_f25_hw1).
+
 Please check your version of Python (Python 3.8+), run either:
 
 ```bash
@@ -32,15 +34,18 @@ Then clone the starter codes from the git repo and install packages.
 ```bash
 git clone https://github.com/llmsystem/llmsys_f25_hw1.git
 cd llmsys_f25_hw1
+# If you are using PSC, 
+# please load the CUDA module before installing packages:
+# module load cuda/12.4.0
 python -m pip install -r requirements.txt
 python -m pip install -r requirements.extra.txt
 python -m pip install -Ue .
 ```
 
-Make sure that everything is installed by running python and then checking:
+Make sure that everything is installed by running the following command:
 
-```python
-import minitorch
+```bash
+python -c "import minitorch; print('Success: minitorch is installed correctly');" 2>/dev/null || echo "Error: Failed to import minitorch. Please check your installation."
 ```
 
 ## Code files layout
@@ -160,7 +165,16 @@ python -m pytest -l -v -k "network"
 
 In this section, you will implement codes for training and perform training on a simple MLP for the sentence sentiment classification task. The places where you need to fill in your code are highlighted with `BEGIN ASSIGN1_3` and `END ASSIGN1_3`.
 
-### 1. Implement training loop
+### 1. Implement cross entropy loss function
+
+You need to implement the binary cross entropy loss function for sentiment classification. This function computes the loss between the predicted output and the true labels. Read the comments carefully before coding.
+
+```python
+def cross_entropy_loss(out, y):
+    ...
+```
+
+### 2. Implement training loop
 
 You need to complete the code for training and validation. Read the comments carefully before coding. What's more, we strongly suggest leveraging the `default_log_fn` function to print the validation accuracy. The outputs will be used for autograding.
 
@@ -174,7 +188,7 @@ class SentenceSentimentTrain:
         ...
 ```
 
-### 2. Training the network
+### 3. Training the network
 
 Train the neural network on SST-2 (Stanford Sentiment Treebank) and report your training and validation results.
 
