@@ -101,9 +101,23 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         Non-constant Variables in topological order starting from the right.
     """
     # BEGIN ASSIGN1_1
-    # TODO
-    
-    raise NotImplementedError("Task Autodiff Not Implemented Yet")
+    visited = set();
+    order = [];
+
+    def dfs_postorder(var: Variable) -> None:
+        if var.unique_id in visited or var.is_constant():
+            return
+        visited.add(var.unique_id)
+
+        for parent in var.parents:
+            dfs_postorder(parent)
+        
+        order.append(var)
+
+    dfs_postorder(variable)
+
+    return reversed(order)
+
     # END ASSIGN1_1
 
 
@@ -119,9 +133,24 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # BEGIN ASSIGN1_1
-    # TODO
+    order = topological_sort(variable)
+    derivs = {variable.unique_id: deriv}
+
+    for var in order:
+        d = derivs.get(var.unique_id, 0)
+
+        if var.is_leaf():
+            var.accumulate_derivative(d)
+        else:
+            backward_result = var.chain_rule(d)
+
+            for parent_var, parent_deriv in backward_result:
+                if parent_var.unique_id in derivs:
+                    derivs[parent_var.unique_id] += parent_deriv
+                else:
+                    derivs[parent_var.unique_id] = parent_deriv
    
-    raise NotImplementedError("Task Autodiff Not Implemented Yet")
+    
     # END ASSIGN1_1
 
 
