@@ -21,13 +21,20 @@ def RParam(*shape):
 
 def cross_entropy_loss(out, y):
     # BEGIN ASSIGN1_3
-    # TODO
     # 1. Create ones tensor with same shape as y
     # 2. Compute log softmax of out and (ones - out)
     # 3. Calculate binary cross entropy and take mean
     # HINT: Use minitorch.tensor_functions.ones, minitorch.nn.logsoftmax
     
-    raise NotImplementedError("cross_entropy_loss not implemented")
+    epsilon = 1e-7
+    out = out.clamp(epsilon, 1 - epsilon)  # Avoid log(0)
+    
+    term1 = y * out.log()
+    term2 = (1 - y) * (1 - out).log()
+    
+    bec_elements = -(term1 + term2)
+    
+    return bce_elements.mean()
     
     # END ASSIGN1_3
 
@@ -36,13 +43,13 @@ class Linear(minitorch.Module):
         super().__init__()
         
         # BEGIN ASSIGN1_2
-        # TODO
         # 1. Initialize self.weights to be a random parameter of (in_size, out_size).
         # 2. Initialize self.bias to be a random parameter of (out_size)
         # 3. Set self.out_size to be out_size
         # HINT: make sure to use the RParam function
-    
-        raise NotImplementedError("Linear not implemented")
+        self.weights = RParam(in_size, out_size)
+        self.bias = RParam(out_size)
+        self.out_size = out_size
     
         # END ASSIGN1_2
 
@@ -51,15 +58,15 @@ class Linear(minitorch.Module):
         batch, in_size = x.shape
         
         # BEGIN ASSIGN1_2
-        # TODO
         # 1. Reshape the input x to be of size (batch, in_size)
         # 2. Reshape self.weights to be of size (in_size, self.out_size)
         # 3. Apply Matrix Multiplication on input x and self.weights, and reshape the output to be of size (batch, self.out_size)
         # 4. Add self.bias
         # HINT: You can use the view function of minitorch.tensor for reshape
 
-        raise NotImplementedError("Linear forward not implemented")
-    
+        linear_output = x @ self.weights.value
+        output = linear_output + self.bias.value
+        return output
         # END ASSIGN1_2
         
         
@@ -88,10 +95,10 @@ class Network(minitorch.Module):
         self.dropout_prob = dropout_prob
                 
         # BEGIN ASSIGN1_2
-        # TODO
         # 1. Construct two linear layers: the first one is embedding_dim * hidden_dim, the second one is hidden_dim * 1
 
-        raise NotImplementedError("Network not implemented")
+        self.linear1 = Linear(embedding_dim, hidden_dim)
+        self.linear2 = Linear(hidden_dim, 1) # Binary classification
         
         # END ASSIGN1_2
         
@@ -103,7 +110,6 @@ class Network(minitorch.Module):
         """
     
         # BEGIN ASSIGN1_2
-        # TODO
         # 1. Average the embeddings on the sentence length dimension to obtain a tensor of (batch, embedding_dim)
         # 2. Apply the first linear layer
         # 3. Apply ReLU and dropout (with dropout probability=self.dropout_prob)
@@ -111,7 +117,16 @@ class Network(minitorch.Module):
         # 5. Apply sigmoid and reshape to (batch)
         # HINT: You can use minitorch.dropout for dropout, and minitorch.tensor.relu for ReLU
         
-        raise NotImplementedError("Network forward not implemented")
+        averaged_embeddings = embeddings.sum(1) / embeddings.shape[1]
+        hidden = self.linear1.forward(averaged_embeddings)
+        hidden = hidden.relu()
+        hidden = minitorch.dropout(hidden, self.dropout_prob)
+        
+        logits = self.linear2.forward(hidden)
+        probs = logits.sigmoid()
+        output = probs.view(probs.shape[0])  # Reshape to (batch)
+        
+        return output
     
         # END ASSIGN1_2
 
@@ -197,7 +212,6 @@ class SentenceSentimentTrain:
                 out=None
                 
                 # BEGIN ASSIGN1_3
-                # TODO
                 # 1. Create x and y using minitorch.tensor function through the SimpleOps backend (cpu backend)
                 # 2. Set requires_grad=True for x and y
                 # 3. Get the model output (as out)
@@ -205,7 +219,31 @@ class SentenceSentimentTrain:
                 # 5. Call backward function of the loss
                 # 6. Use Optimizer to take a gradient step
                 
-                raise NotImplementedError("SentenceSentimentTrain train not implemented")
+                # 1. & 2. Create tensors with requires_grad
+                # Get the batch data
+                batch_end = min(example_num + batch_size, n_training_samples)
+                X_batch = X_train[example_num:batch_end]
+                y_batch = y_train[example_num:batch_end]
+    
+                # Create minitorch tensors
+                # x should be a 3D tensor [batch, sentence_len, embedding_dim]
+                x = minitorch.tensor(X_batch, backend=BACKEND, requires_grad=True)
+                # y should be a 1D tensor [batch] with float labels (0.0 or 1.0)
+                y = minitorch.tensor(y_batch, backend=BACKEND, requires_grad=True)
+
+                # 3. Get the model output
+                out = model.forward(x)
+
+                # 4. Calculate the loss using Binary Crossentropy Loss
+                loss = cross_entropy_loss(out, y)
+
+                # 5. Call backward function of the loss
+                # Clear gradients before backward pass
+                optim.zero_grad()
+                loss.backward()
+                
+                # 6. Use Optimizer to take a gradient step
+                optim.step()
 
                 # END ASSIGN1_3
                 
@@ -222,13 +260,26 @@ class SentenceSentimentTrain:
                 model.eval()
                 
                 # BEGIN ASSIGN1_3
-                # TODO
                 # 1. Create x and y using minitorch.tensor function through our CudaKernelOps backend
                 # 2. Get the output of the model
                 # 3. Obtain validation predictions using the get_predictions_array function, and add to the validation_predictions list
                 # 4. Obtain the validation accuracy using the get_accuracy function, and add to the validation_accuracy list
                 
-                raise NotImplementedError("SentenceSentimentTrain train not implemented")
+                # 1. Create tensors (using SimpleOps backend as per the rest of the file)
+                #    Note: For validation, we typically don't need requires_grad
+                x_val = minitorch.tensor(X_val, backend=BACKEND, requires_grad=False)
+                y_val_tensor = minitorch.tensor(y_val, backend=BACKEND, requires_grad=False) # Renamed to avoid conflict
+
+                 # 2. Get the output of the model
+                out_val = model.forward(x_val)
+
+                 # 3. Obtain validation predictions
+                batch_validation_predictions = get_predictions_array(y_val_tensor, out_val)
+                validation_predictions.extend(batch_validation_predictions) # Use extend to add list elements
+
+                 # 4. Obtain the validation accuracy
+                batch_validation_accuracy = get_accuracy(batch_validation_predictions)
+                validation_accuracy.append(batch_validation_accuracy) # Append the scalar accuracy
                 
                 # END ASSIGN1_3
                 
